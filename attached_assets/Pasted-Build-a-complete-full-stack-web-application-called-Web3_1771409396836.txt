@@ -1,0 +1,133 @@
+Build a complete full-stack web application called Web3D Bookmark Visualizer.
+
+The application should allow users to save bookmarks (title, URL, category) and visualize them in an interactive 3D environment inside the browser.
+
+Use the following tech stack:
+
+Frontend: React (Vite)
+
+3D Rendering: Three.js
+
+Backend: Node.js + Express
+
+Database: MongoDB with Mongoose
+
+🔹 BACKEND REQUIREMENTS
+
+Create a REST API with proper MVC structure:
+
+Bookmark Schema:
+{
+title: { type: String, required: true },
+url: { type: String, required: true },
+category: { type: String, required: true },
+createdAt: { type: Date, default: Date.now }
+}
+
+API Endpoints:
+
+POST /api/bookmarks → Add bookmark
+
+GET /api/bookmarks → Get all bookmarks
+
+PUT /api/bookmarks/:id → Update bookmark
+
+DELETE /api/bookmarks/:id → Delete bookmark
+
+Include:
+
+Error handling
+
+CORS
+
+Environment variables
+
+Clean folder structure
+
+🔹 FRONTEND REQUIREMENTS
+
+Create a React application with:
+
+A form to add new bookmarks (title, URL, category)
+
+A 3D canvas area
+
+Three.js Scene:
+
+PerspectiveCamera
+
+AmbientLight + DirectionalLight
+
+WebGLRenderer
+
+OrbitControls (zoom + rotate)
+
+3D Visualization Logic:
+
+Fetch bookmarks from backend
+
+Render each bookmark as a 3D cube
+
+Color cubes based on category
+
+Group bookmarks by category in clusters
+
+Display bookmark title as text label above cube
+
+Interaction:
+
+Raycasting for click detection
+
+On cube click → open bookmark URL in new tab
+
+Hover animation (scale up slightly)
+
+Smooth render loop animation
+
+🔹 ARCHITECTURE REQUIREMENTS
+
+Separate components:
+
+BookmarkForm.jsx
+
+ThreeScene.jsx
+
+API service file
+
+Reusable function: renderBookmarks(data)
+
+Clean, modular, well-commented code
+
+Production-ready structure
+
+🔹 UI REQUIREMENTS
+
+Modern minimal UI
+
+Responsive layout
+
+Dark theme
+
+Loading state while fetching bookmarks
+
+🔹 BONUS FEATURES
+
+Search bar to filter bookmarks
+
+Camera smoothly moves toward selected bookmark
+
+Animation when new bookmark is added
+
+Provide:
+
+Full folder structure
+
+All required dependencies
+
+Setup instructions
+
+Complete working code
+
+Comments explaining important parts
+
+The code should be suitable for a final-year major project and easy to explain in a viva.
