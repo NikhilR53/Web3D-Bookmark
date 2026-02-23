@@ -29,10 +29,17 @@ export async function setupVite(server: Server, app: Express) {
     appType: "custom",
   });
 
+  // Attach Vite middlewares first
   app.use(vite.middlewares);
 
-  app.use("/{*path}", async (req, res, next) => {
+  // SPA fallback — MUST ignore API routes
+  app.use(async (req, res, next) => {
     const url = req.originalUrl;
+
+    // 🚨 CRITICAL FIX: Do NOT handle API routes
+    if (url.startsWith("/api")) {
+      return next();
+    }
 
     try {
       const clientTemplate = path.resolve(
@@ -42,14 +49,20 @@ export async function setupVite(server: Server, app: Express) {
         "index.html",
       );
 
-      // always reload the index.html file from disk incase it changes
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
+
+      // Bust cache for HMR
       template = template.replace(
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`,
       );
+
       const page = await vite.transformIndexHtml(url, template);
-      res.status(200).set({ "Content-Type": "text/html" }).end(page);
+
+      res
+        .status(200)
+        .set({ "Content-Type": "text/html" })
+        .end(page);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
       next(e);

@@ -5,23 +5,38 @@ import { useCreateBookmark } from "@/hooks/use-bookmarks";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface BookmarkFormProps {
   onSuccess?: () => void;
+  categories?: string[];
 }
 
-export function BookmarkForm({ onSuccess }: BookmarkFormProps) {
+const DEFAULT_CATEGORIES = [
+  "General",
+  "Development",
+  "Design",
+  "Tools",
+  "Learning",
+  "News",
+  "Productivity",
+  "Web3",
+];
+
+export function BookmarkForm({ onSuccess, categories = [] }: BookmarkFormProps) {
   const { toast } = useToast();
   const createBookmark = useCreateBookmark();
+  const categoryOptions = Array.from(new Set([...DEFAULT_CATEGORIES, ...categories]));
+  const defaultCategory = categoryOptions[0] ?? "General";
   
   const form = useForm<InsertBookmark>({
     resolver: zodResolver(insertBookmarkSchema),
     defaultValues: {
       title: "",
       url: "",
-      category: "General",
+      category: defaultCategory,
     },
   });
 
@@ -29,7 +44,7 @@ export function BookmarkForm({ onSuccess }: BookmarkFormProps) {
     createBookmark.mutate(data, {
       onSuccess: () => {
         toast({ title: "Bookmark created", description: "Your new bookmark has been added to the 3D space." });
-        form.reset();
+        form.reset({ title: "", url: "", category: defaultCategory });
         onSuccess?.();
       },
       onError: (err) => {
@@ -76,7 +91,18 @@ export function BookmarkForm({ onSuccess }: BookmarkFormProps) {
             <FormItem>
               <FormLabel>Category</FormLabel>
               <FormControl>
-                <Input placeholder="Work, Fun, News..." {...field} />
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categoryOptions.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </FormControl>
               <FormMessage />
             </FormItem>
