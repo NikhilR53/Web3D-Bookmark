@@ -79,6 +79,7 @@ export async function registerRoutes(
         name: user.name,
         role: "explorer",
       });
+      return res.status(200).json({ test: "server works" });
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid signup payload", errors: error.errors });
@@ -107,14 +108,22 @@ export async function registerRoutes(
         name: user.name,
         role: "explorer",
       });
+      return res.status(200).json({ test: "server works" });
     } catch (error) {
+      console.error("[auth/login] Request failed:", error instanceof Error ? error.stack : error);
+
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid login payload", errors: error.errors });
       }
       if (typeof error === "object" && error && "code" in error && error.code === "42P01") {
         return res.status(500).json({ message: "Database schema is outdated. Run npm run db:push." });
       }
-      return res.status(500).json({ message: "Internal server error" });
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      return res.status(500).json(
+        process.env.NODE_ENV !== "production"
+          ? { message: errorMessage }
+          : { message: "Internal server error" },
+      );
     }
   });
 

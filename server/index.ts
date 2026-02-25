@@ -4,6 +4,7 @@ import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import { platform } from "node:os";
+import { assertDatabaseConnection } from "./db";
 
 const app = express();
 const httpServer = createServer(app);
@@ -75,19 +76,32 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  try {
+    await assertDatabaseConnection();
+  } catch (error) {
+    console.error("[startup] Database connectivity check failed:", error);
+    process.exit(1);
+  }
+
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+    const baseMessage = err?.message || "Internal Server Error";
+    const message = status >= 500 ? "Internal Server Error" : baseMessage;
 
-    console.error("Internal Server Error:", err);
+    console.error("Internal Server Error:", err?.stack || err);
 
     if (res.headersSent) {
       return next(err);
     }
 
-    return res.status(status).json({ message });
+    const includeErrorDetails = process.env.NODE_ENV !== "production";
+    return res.status(status).json(
+      includeErrorDetails
+        ? { message, error: baseMessage }
+        : { message },
+    );
   });
 
   // importantly only setup vite in development and after
