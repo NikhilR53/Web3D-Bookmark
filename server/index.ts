@@ -5,6 +5,8 @@ import { serveStatic } from "./static";
 import { createServer } from "http";
 import { platform } from "node:os";
 import { assertDatabaseConnection } from "./db";
+import dns from "node:dns";
+dns.setDefaultResultOrder("ipv4first");
 
 const app = express();
 const httpServer = createServer(app);
