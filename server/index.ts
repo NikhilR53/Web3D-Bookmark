@@ -8,6 +8,11 @@ import { assertDatabaseConnection } from "./db";
 
 const app = express();
 const httpServer = createServer(app);
+const isProduction = process.env.NODE_ENV === "production";
+
+if (isProduction && !process.env.SESSION_SECRET) {
+  throw new Error("SESSION_SECRET must be set in production");
+}
 
 declare module "http" {
   interface IncomingMessage {
@@ -32,7 +37,7 @@ app.use(
     cookie: {
       httpOnly: true,
       sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction,
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
   }),
@@ -96,7 +101,7 @@ app.use((req, res, next) => {
       return next(err);
     }
 
-    const includeErrorDetails = process.env.NODE_ENV !== "production";
+    const includeErrorDetails = !isProduction;
     return res.status(status).json(
       includeErrorDetails
         ? { message, error: baseMessage }
@@ -107,7 +112,7 @@ app.use((req, res, next) => {
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
-  if (process.env.NODE_ENV === "production") {
+  if (isProduction) {
     serveStatic(app);
   } else {
     const { setupVite } = await import("./vite");

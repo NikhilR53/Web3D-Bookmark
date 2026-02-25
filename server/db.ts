@@ -1,10 +1,8 @@
 import { drizzle } from "drizzle-orm/node-postgres";
-import pg from "pg";
+import { Pool } from "pg";
 import * as schema from "@shared/schema";
 import { existsSync } from "node:fs";
 import { loadEnvFile } from "node:process";
-
-const { Pool } = pg;
 
 if (existsSync(".env")) {
   loadEnvFile();
@@ -17,18 +15,24 @@ if (!databaseUrl) {
   );
 }
 
-const dbConnectTimeoutMs = Number(process.env.DB_CONNECT_TIMEOUT_MS ?? 5_000);
-const dbQueryTimeoutMs = Number(process.env.DB_QUERY_TIMEOUT_MS ?? 10_000);
-const shouldUseSsl =
-  process.env.NODE_ENV === "production" || process.env.RENDER === "true";
+function parsePositiveMs(value: string | undefined, fallback: number) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
 
+const dbConnectTimeoutMs = parsePositiveMs(
+  process.env.DB_CONNECT_TIMEOUT_MS,
+  5_000,
+);
+const dbQueryTimeoutMs = parsePositiveMs(
+  process.env.DB_QUERY_TIMEOUT_MS,
+  10_000,
+);
 export const pool = new Pool({
   connectionString: databaseUrl,
-  ssl: shouldUseSsl
-    ? {
-        rejectUnauthorized: false,
-      }
-    : undefined,
+  ssl: {
+    rejectUnauthorized: false,
+  },
   connectionTimeoutMillis: dbConnectTimeoutMs,
   query_timeout: dbQueryTimeoutMs,
   statement_timeout: dbQueryTimeoutMs,

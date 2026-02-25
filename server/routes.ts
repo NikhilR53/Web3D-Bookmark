@@ -79,7 +79,6 @@ export async function registerRoutes(
         name: user.name,
         role: "explorer",
       });
-      return res.status(200).json({ test: "server works" });
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid signup payload", errors: error.errors });
@@ -108,9 +107,8 @@ export async function registerRoutes(
         name: user.name,
         role: "explorer",
       });
-      return res.status(200).json({ test: "server works" });
     } catch (error) {
-      console.error("[auth/login] Request failed:", error instanceof Error ? error.stack : error);
+      console.error(error);
 
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid login payload", errors: error.errors });
