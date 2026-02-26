@@ -3,16 +3,42 @@ import session from "express-session";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
-import { assertDatabaseConnection } from "./db";
 import dns from "node:dns";
 dns.setDefaultResultOrder("ipv4first");
 
-const app = express();
-const httpServer = createServer(app);
 const isProduction = process.env.NODE_ENV === "production";
 
-if (isProduction && !process.env.SESSION_SECRET) {
-  throw new Error("SESSION_SECRET must be set in production");
+function logError(context: string, error: unknown) {
+  if (error instanceof Error) {
+    console.error(`[${context}] ${error.message}`);
+    if (error.stack) {
+      console.error(error.stack);
+    }
+    return;
+  }
+
+  console.error(`[${context}]`, error);
+}
+
+process.on("uncaughtException", (error) => {
+  logError("uncaughtException", error);
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (reason) => {
+  logError("unhandledRejection", reason);
+  process.exit(1);
+});
+
+function validateStartupEnv() {
+  const databaseUrl = process.env.DATABASE_URL?.trim();
+  if (!databaseUrl) {
+    throw new Error("DATABASE_URL is required and must be non-empty.");
+  }
+
+  if (isProduction && !process.env.SESSION_SECRET?.trim()) {
+    throw new Error("SESSION_SECRET must be set in production.");
+  }
 }
 
 declare module "http" {
@@ -20,6 +46,9 @@ declare module "http" {
     rawBody: unknown;
   }
 }
+
+const app = express();
+const httpServer = createServer(app);
 
 app.use(
   express.json({
@@ -82,14 +111,22 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  validateStartupEnv();
+
   try {
+    const { assertDatabaseConnection } = await import("./db");
     await assertDatabaseConnection();
   } catch (error) {
-    console.error("[startup] Database connectivity check failed:", error);
+    logError("startup", error);
     process.exit(1);
   }
 
-  await registerRoutes(httpServer, app);
+  try {
+    await registerRoutes(httpServer, app);
+  } catch (error) {
+    logError("startup", error);
+    process.exit(1);
+  }
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -125,6 +162,9 @@ app.use((req, res, next) => {
   app.listen(port, () => {
     console.log(`Server running on port ${port}`);
   });
-})();
+})().catch((error) => {
+  logError("startup", error);
+  process.exit(1);
+});
 
 
