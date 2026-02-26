@@ -3,7 +3,6 @@ import session from "express-session";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
-import { platform } from "node:os";
 import { assertDatabaseConnection } from "./db";
 import dns from "node:dns";
 dns.setDefaultResultOrder("ipv4first");
@@ -121,27 +120,11 @@ app.use((req, res, next) => {
     await setupVite(httpServer, app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || "5000", 10);
-  const isWindows = platform() === "win32";
-  const host = process.env.HOST || (isWindows ? "127.0.0.1" : "0.0.0.0");
+  const port = process.env.PORT || 5000;
 
-  httpServer.listen(
-    isWindows
-      ? {
-          port,
-          host,
-        }
-      : {
-          port,
-          host,
-          reusePort: true,
-        },
-    () => {
-      log(`serving on ${host}:${port}`);
-    },
-  );
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
 })();
+
+
