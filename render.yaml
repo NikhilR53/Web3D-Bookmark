@@ -32,22 +32,3 @@ services:
       - key: PORT
         value: "3000"
     healthCheckPath: /api/profile
-    headers:
-      - http:
-          paths:
-            - path: /api
-              methods:
-                - GET
-                - POST
-                - PUT
-                - DELETE
-              headers:
-                - key: X-Frame-Options
-                  value: DENY
-                - key: X-Content-Type-Options
-                  value: nosniff
-                - key: X-XSS-Protection
-                  value: "1; mode=block"
-    routes:
-      - path: /
-        matchType: all
