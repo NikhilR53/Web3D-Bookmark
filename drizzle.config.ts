@@ -1,9 +1,9 @@
 import { defineConfig } from "drizzle-kit";
 import { existsSync } from "node:fs";
-import { loadEnvFile } from "node:process";
+import dotenv from "dotenv";
 
 if (existsSync(".env")) {
-  loadEnvFile();
+  dotenv.config();
 }
 
 if (!process.env.DATABASE_URL) {

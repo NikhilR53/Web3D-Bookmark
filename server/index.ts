@@ -157,9 +157,9 @@ app.use((req, res, next) => {
     await setupVite(httpServer, app);
   }
 
-  const port = process.env.PORT || 5000;
+  const port = process.env.PORT || 5173;
 
-  app.listen(port, () => {
+  httpServer.listen(port, () => {
     console.log(`Server running on port ${port}`);
   });
 })().catch((error) => {

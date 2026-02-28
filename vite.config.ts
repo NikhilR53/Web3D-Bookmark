@@ -32,6 +32,22 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    host: "0.0.0.0",
+    port: 5000,
+    strictPort: true,
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:5173",
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+      },
+    },
+    hmr: {
+      protocol: "ws",
+      host: "localhost",
+      clientPort: 5000,
+    },
     fs: {
       strict: true,
       deny: ["**/.*"],

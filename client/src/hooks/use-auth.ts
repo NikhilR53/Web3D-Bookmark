@@ -5,26 +5,12 @@ import { type LoginInput, type SignupInput } from "@shared/schema";
 const explicitApiBase = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "");
 
 async function authFetch(path: string, init?: RequestInit): Promise<Response> {
-  const attempts = [path];
+  const url =
+    !path.startsWith("http") && explicitApiBase
+      ? `${explicitApiBase}${path}`
+      : path;
 
-  if (!path.startsWith("http")) {
-    if (explicitApiBase) {
-      attempts.push(`${explicitApiBase}${path}`);
-    } else {
-      attempts.push(`http://127.0.0.1:5000${path}`);
-    }
-  }
-
-  let lastError: unknown;
-  for (const url of attempts) {
-    try {
-      return await fetch(url, { ...init, credentials: "include" });
-    } catch (error) {
-      lastError = error;
-    }
-  }
-
-  throw lastError instanceof Error ? lastError : new Error("Network request failed");
+  return fetch(url, { ...init, credentials: "include" });
 }
 
 async function getErrorMessage(res: Response, fallback: string) {

@@ -2,10 +2,10 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as schema from "@shared/schema";
 import { existsSync } from "node:fs";
-import { loadEnvFile } from "node:process";
+import dotenv from "dotenv";
 
 if (existsSync(".env")) {
-  loadEnvFile();
+  dotenv.config();
 }
 
 const databaseUrl = process.env.DATABASE_URL?.trim();

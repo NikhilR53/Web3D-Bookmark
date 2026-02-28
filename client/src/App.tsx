@@ -44,9 +44,9 @@ function Router() {
           <Route path="/login" component={Login} />
           <Route path="/signup" component={Signup} />
         </>
-      ) : null}
-
-      <Route path="/" component={Home} />
+      ) : (
+        <Route path="/" component={Home} />
+      )}
       <Route component={NotFound} />
     </Switch>
   );
