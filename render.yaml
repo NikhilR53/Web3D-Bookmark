@@ -1,6 +1,6 @@
 services:
   # PostgreSQL Database
-  - type: postgres
+  - type: pserv
     name: web3-bookmark-db
     plan: free
 
