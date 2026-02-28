@@ -1,8 +1,7 @@
 services:
   # PostgreSQL Database
-  - type: pserv
+  - type: postgres
     name: web3-bookmark-db
-    env: docker
     plan: free
     envVars:
       - key: POSTGRES_DB
