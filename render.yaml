@@ -2,6 +2,7 @@ services:
   # PostgreSQL Database
   - type: pserv
     name: web3-bookmark-db
+    runtime: postgres15
     plan: free
 
   # Web Service (Node.js + React)
