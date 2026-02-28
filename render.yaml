@@ -4,7 +4,6 @@ services:
     name: web3-bookmark-db
     env: docker
     plan: free
-    ipAllowList: []
     envVars:
       - key: POSTGRES_DB
         value: postgres
