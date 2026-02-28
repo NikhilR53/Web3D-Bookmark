@@ -3,13 +3,6 @@ services:
   - type: postgres
     name: web3-bookmark-db
     plan: free
-    envVars:
-      - key: POSTGRES_DB
-        value: postgres
-      - key: POSTGRES_USER
-        value: postgres
-      - key: POSTGRES_PASSWORD
-        generateValue: true
 
   # Web Service (Node.js + React)
   - type: web
