@@ -1,0 +1,53 @@
+services:
+  # PostgreSQL Database
+  - type: pserv
+    name: web3-bookmark-db
+    env: docker
+    plan: free
+    ipAllowList: []
+    envVars:
+      - key: POSTGRES_DB
+        value: postgres
+      - key: POSTGRES_USER
+        value: postgres
+      - key: POSTGRES_PASSWORD
+        generateValue: true
+
+  # Web Service (Node.js + React)
+  - type: web
+    name: web3-bookmark-api
+    env: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: web3-bookmark-db
+          property: connectionString
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: PORT
+        value: "3000"
+    healthCheckPath: /api/profile
+    headers:
+      - http:
+          paths:
+            - path: /api
+              methods:
+                - GET
+                - POST
+                - PUT
+                - DELETE
+              headers:
+                - key: X-Frame-Options
+                  value: DENY
+                - key: X-Content-Type-Options
+                  value: nosniff
+                - key: X-XSS-Protection
+                  value: "1; mode=block"
+    routes:
+      - path: /
+        matchType: all
