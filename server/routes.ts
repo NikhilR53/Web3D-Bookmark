@@ -44,6 +44,10 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express,
 ): Promise<Server> {
+  app.get("/api/health", (_req, res) => {
+    res.status(200).json({ status: "ok" });
+  });
+
   app.get("/api/profile", async (req, res) => {
     const user = await resolveAuthenticatedUser(req.session);
     if (!user) {

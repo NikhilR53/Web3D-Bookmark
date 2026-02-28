@@ -1,17 +1,11 @@
 services:
-  # PostgreSQL Database
-  - type: pserv
-    name: web3-bookmark-db
-    runtime: postgres15
-    plan: free
-
-  # Web Service (Node.js + React)
   - type: web
     name: web3-bookmark-api
     env: node
     plan: free
-    buildCommand: npm run build
+    buildCommand: npm ci && npm run build
     startCommand: npm start
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
@@ -21,6 +15,8 @@ services:
           property: connectionString
       - key: SESSION_SECRET
         generateValue: true
-      - key: PORT
-        value: "3000"
-    healthCheckPath: /api/profile
+
+databases:
+  - name: web3-bookmark-db
+    plan: free
+    postgresMajorVersion: 15

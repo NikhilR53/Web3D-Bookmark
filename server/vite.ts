@@ -3,6 +3,7 @@ import { createServer as createViteServer, createLogger } from "vite";
 import { type Server } from "http";
 import fs from "fs";
 import path from "path";
+import { pathToFileURL } from "url";
 import { nanoid } from "nanoid";
 
 const viteLogger = createLogger();
@@ -16,7 +17,10 @@ export async function setupVite(server: Server, app: Express) {
 
   // Load Vite config lazily in development so production bundles
   // do not statically include vite.config.ts.
-  const { default: viteConfig } = await import("../vite.config");
+  const viteConfigUrl = pathToFileURL(
+    path.resolve(process.cwd(), "vite.config.ts"),
+  ).href;
+  const { default: viteConfig } = await import(viteConfigUrl);
 
   const vite = await createViteServer({
     ...viteConfig,
